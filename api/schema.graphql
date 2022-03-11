@@ -1,0 +1,209 @@
+schema {
+  query: Root
+  mutation: Mutation
+}
+
+"""The top-level GraphQL API."""
+type Root {
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
+
+  """Fetches objects given their IDs"""
+  nodes(
+    """The IDs of objects"""
+    ids: [ID!]!
+  ): [Node]!
+
+  """The authenticated user."""
+  me: User
+
+  """Fetches a user account by username or email."""
+  user(username: String, email: String): User
+
+  """Fetches user accounts."""
+  users(
+    """Returns the items in the list that come after the specified cursor."""
+    after: String
+
+    """Returns the first n items from the list."""
+    first: Int
+  ): UserConnection
+}
+
+"""An object with an ID"""
+interface Node {
+  """The id of the object."""
+  id: ID!
+}
+
+"""The registered user account."""
+type User implements Node {
+  """The ID of an object"""
+  id: ID!
+  username: String!
+  email: String
+  emailVerified: Boolean
+  name: String
+  picture: Picture!
+  givenName: String
+  familyName: String
+  timeZone: String
+  locale: String
+  identities: [Identity!]
+  created(format: String): String
+  updated(format: String): String
+  lastLogin(format: String): String
+}
+
+type Picture {
+  url: String
+}
+
+"""The OAuth user identity (credentials)."""
+type Identity {
+  """The ID of an object"""
+  id: ID!
+  provider: IdentityProvider!
+  username: String
+  email: String
+  created(format: String): String
+  updated(format: String): String
+}
+
+"""OAuth identity provider"""
+enum IdentityProvider {
+  Google
+  Apple
+  Facebook
+  GitHub
+  LinkedIn
+  Microsoft
+  Twitter
+  Yahoo
+  GameCenter
+  PlayGames
+}
+
+"""A connection to a list of items."""
+type UserConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [UserEdge]
+  totalCount: Int!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+"""An edge in a connection."""
+type UserEdge {
+  """The item at the end of the edge"""
+  node: User
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type Mutation {
+  """Creates an authentication session"""
+  signIn(input: SignInInput): SignInPayload
+
+  """Clears authentication session"""
+  signOut: String
+
+  """Creates a new user account"""
+  createUser(input: CreateUserInput, dryRun: Boolean! = false): CreateUserPayload
+  getUploadURL(fileName: String!, contentType: String): String
+
+  """Sends password recovery code to the user's email address"""
+  resetPassword(
+    """Username or email"""
+    username: String
+
+    """New password"""
+    password: String
+
+    """Verification code"""
+    code: String
+  ): ResetPasswordPayload
+
+  """Saves the uploaded file (URL path) to the database"""
+  saveUpload(id: ID!, uploadURL: String!, uploadType: UploadType!): SaveUploadPayload
+
+  """Updates the user account."""
+  updateUser(input: UpdateUserInput, dryRun: Boolean! = false): UpdateUserPayload
+}
+
+type SignInPayload {
+  user: User
+}
+
+input SignInInput {
+  """Username or email"""
+  username: String
+
+  """User's password"""
+  password: String
+}
+
+type CreateUserPayload {
+  user: User
+}
+
+input CreateUserInput {
+  username: String
+  email: String
+  password: String
+  firstName: String
+  lastName: String
+  timeZone: String
+  locale: String
+  signIn: Boolean = false
+}
+
+type ResetPasswordPayload {
+  user: User
+}
+
+type SaveUploadPayload {
+  user: User
+}
+
+"""The type of the uploaded file"""
+enum UploadType {
+  ProfilePicture
+  ClassCoverImage
+  ClassVideoImage
+}
+
+type UpdateUserPayload {
+  user: User
+}
+
+input UpdateUserInput {
+  id: ID!
+  username: String
+  email: String
+  name: String
+  givenName: String
+  familyName: String
+  timeZone: String
+  locale: String
+}

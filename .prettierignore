@@ -1,0 +1,31 @@
+# API
+/api/dist
+/api/schema.graphql
+
+# DB
+/db/types.ts
+
+# Web
+/web/queries
+
+# Compiled output
+/*/dist/
+
+# Yarn
+.yarn/cache
+.yarn/plugins/*/**
+.yarn/releases
+.yarn/sdks
+.yarn/unplugged
+.yarn/*.*
+.pnp.*
+
+# Terraform
+.terraform
+*.tfvars.json
+
+# Misc
+.husky
+.cache
+*.hbs
+/tsconfig.json
